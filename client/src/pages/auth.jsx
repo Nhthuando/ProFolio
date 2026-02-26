@@ -76,7 +76,7 @@ function FacebookIcon() {
 			/>
 		</svg>
 	)
-}
+}   
 
 function EmailIcon() {
 	return (
@@ -94,7 +94,11 @@ function EmailIcon() {
 
 function AuthPage() {
 	const [showLoginPassword, setShowLoginPassword] = useState(false)
+	const [showRegisterPassword, setShowRegisterPassword] = useState(false)
+	const [showRegisterRePassword, setShowRegisterRePassword] = useState(false)
+	const [showRegisterEmailForm, setShowRegisterEmailForm] = useState(false)
 	const [loginForm, setLoginForm] = useState({ email: '', password: '' })
+	const [registerForm, setRegisterForm] = useState({ email: '', password: '', repass: '' })
 	const [isPageReady, setIsPageReady] = useState(false)
 
 	useEffect(() => {
@@ -107,15 +111,73 @@ function AuthPage() {
 
 	const isValidEmail = (email) => /^\S+@\S+\.\S+$/.test(email)
 	const loginValid = isValidEmail(loginForm.email) && loginForm.password.trim().length >= 6
+	const registerPasswordValid = registerForm.password.trim().length >= 6
+	const registerValid =
+		isValidEmail(registerForm.email) &&
+		registerPasswordValid &&
+		registerForm.repass.trim().length >= 6 &&
+		registerForm.password === registerForm.repass
 
 	const onLoginInputChange = (event) => {
 		const { name, value } = event.target
 		setLoginForm((previous) => ({ ...previous, [name]: value }))
 	}
 
-	const onSubmitLogin = (event) => {
+	const onRegisterInputChange = (event) => {
+		const { name, value } = event.target
+		setRegisterForm((previous) => ({ ...previous, [name]: value }))
+	}
+
+	const onSubmitLogin = async (event) => {
 		event.preventDefault()
 		if (!loginValid) return
+			try {
+			const response = await fetch('http://localhost:3000/api/auth/dangnhap', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ 
+					email: loginForm.email, 
+					password: loginForm.password 
+				})
+			})
+
+			const data = await response.json()
+
+			if (response.ok) {
+				alert(data.message) 
+			} else {
+				alert(data.message) 
+			}
+		} catch (error) {
+			console.error('Lỗi:', error)
+			alert('Lỗi kết nối server')
+		}
+	}
+
+	const onSubmitRegister = async (event) => {
+		event.preventDefault()
+		if (!registerValid) return
+			try {
+			const response = await fetch('http://localhost:3000/api/auth/dangky', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ 
+					email: registerForm.email, 
+					password: registerForm.password 
+				})
+			})
+
+			const data = await response.json()
+
+			if (response.ok) {
+				alert(data.message) 
+			} else {
+				alert(data.message) 
+			}
+		} catch (error) {
+			console.error('Lỗi:', error)
+			alert('Lỗi kết nối server')
+		}
 	}
 
 	const socialButtonClass =
@@ -126,6 +188,10 @@ function AuthPage() {
 		'h-11 min-w-28 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 px-8 text-base font-semibold text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:from-blue-600 hover:to-cyan-600 hover:shadow-lg active:translate-y-0 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 sm:h-12 sm:min-w-32 sm:px-10 sm:text-xl'
 	const inactiveSubmitButtonClass =
 		'h-11 min-w-28 rounded-full bg-gray-300 px-8 text-base font-semibold text-white/90 shadow-inner transition-all duration-200 cursor-not-allowed sm:h-12 sm:min-w-32 sm:px-10 sm:text-xl'
+	const activeRegisterButtonClass =
+		'h-11 w-full rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-6 text-sm font-semibold text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:from-blue-600 hover:to-cyan-600 hover:shadow-lg active:translate-y-0 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300'
+	const inactiveRegisterButtonClass =
+		'h-11 w-full rounded-xl bg-gray-300 px-6 text-sm font-semibold text-white/90 shadow-inner transition-all duration-200 cursor-not-allowed'
 
 	return (
 		<div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0a2b63] px-3 py-5 sm:px-4 sm:py-8">
@@ -156,107 +222,212 @@ function AuthPage() {
 						Dễ dàng tạo hồ sơ cá nhân và chia sẻ với nhà tuyển dụng
 					</p>
 
-					<div className="grid w-full gap-7 md:grid-cols-2 md:gap-10">
-						<section className="border-b border-gray-200 pb-7 md:border-b-0 md:border-r md:pr-10">
-								<h2 className="mb-5 text-center text-xl font-semibold text-gray-800 sm:mb-6 sm:text-2xl">Đăng Ký</h2>
+					<div className="relative w-full overflow-hidden rounded-2xl border border-gray-100 bg-gradient-to-b from-white to-slate-50/40">
+						<div
+							className={`flex w-[200%] transition-transform duration-500 ease-out ${
+								showRegisterEmailForm ? '-translate-x-1/2' : 'translate-x-0'
+							}`}
+						>
+							<div className="w-1/2 p-4 sm:p-6">
+								<div className="grid gap-7 md:grid-cols-2 md:gap-10">
+									<section className="border-b border-gray-200 pb-7 md:border-b-0 md:border-r md:pr-10">
+										<h2 className="mb-5 text-center text-xl font-semibold text-gray-800 sm:mb-6 sm:text-2xl">Đăng Ký</h2>
 
-								<div className="space-y-4">
-									<button type="button" className={socialButtonClass}>
-										<span aria-hidden="true">
-											<GoogleIcon />
-										</span>
-										Đăng ký với Google
-									</button>
-									<button type="button" className={socialButtonClass}>
-										<span aria-hidden="true">
-											<FacebookIcon />
-										</span>
-										Đăng ký với Facebook
-									</button>
-                                    <button type="button" className={socialButtonClass}>
-										<span aria-hidden="true" className="text-gray-600">
-											<EmailIcon />
-										</span>
-										Đăng ký với Email
-									</button>
-								</div>
-
-								<p className="mt-5 text-xs leading-5 text-gray-500 sm:mt-6 sm:text-sm">
-									Với việc tạo tài khoản, bạn đồng ý với{' '}
-									<a href="#" className="underline decoration-gray-400 underline-offset-2 transition hover:text-gray-700 hover:decoration-gray-700">
-										Điều khoản dịch vụ
-									</a>{' '}
-									và xác nhận bạn đã đọc và đồng ý với{' '}
-									<a href="#" className="underline decoration-gray-400 underline-offset-2 transition hover:text-gray-700 hover:decoration-gray-700">
-										Chính sách bảo mật của tôi
-									</a>
-									.
-								</p>
-							</section>
-
-							<section className="md:pl-1">
-								<h2 className="mb-5 text-center text-xl font-semibold text-gray-800 sm:mb-6 sm:text-2xl">Đăng Nhập</h2>
-
-								<form className="space-y-4" onSubmit={onSubmitLogin}>
-									<div>
-										<label className="mb-2 block text-sm text-gray-500" htmlFor="login-email">
-											Email
-										</label>
-										<input
-											id="login-email"
-											name="email"
-											type="email"
-											className={inputClass}
-											value={loginForm.email}
-											onChange={onLoginInputChange}
-											placeholder="email@example.com"
-										/>
-									</div>
-
-									<div>
-										<div className="mb-2 flex items-center justify-between text-sm text-gray-500">
-											<label htmlFor="login-password">Mật Khẩu</label>
+										<div className="space-y-4">
+											<button type="button" className={socialButtonClass}>
+												<span aria-hidden="true">
+													<GoogleIcon />
+												</span>
+												Đăng ký với Google
+											</button>
+											<button type="button" className={socialButtonClass}>
+												<span aria-hidden="true">
+													<FacebookIcon />
+												</span>
+												Đăng ký với Facebook
+											</button>
 											<button
 												type="button"
-												onClick={() => setShowLoginPassword((previous) => !previous)}
-												className="inline-flex items-center gap-1 rounded px-1 py-0.5 text-gray-500 transition hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
+												onClick={() => setShowRegisterEmailForm(true)}
+												className={`${socialButtonClass} bg-gradient-to-r from-blue-50 to-cyan-50`}
+												aria-expanded={showRegisterEmailForm}
 											>
-												{showLoginPassword ? <EyeClosedIcon /> : <EyeOpenIcon />}
-												<span>{showLoginPassword ? 'Ẩn' : 'Hiện'}</span>
+												<span aria-hidden="true" className="text-blue-600">
+													<EmailIcon />
+												</span>
+												Đăng ký với Email
 											</button>
 										</div>
-										<input
-											id="login-password"
-											name="password"
-											type={showLoginPassword ? 'text' : 'password'}
-											className={inputClass}
-											value={loginForm.password}
-											onChange={onLoginInputChange}
-											placeholder="Tối thiểu 6 ký tự"
-										/>
-									</div>
 
-									<div className="text-right">
-										<a
-											href="#"
-											className="text-sm text-gray-600 underline decoration-gray-400 underline-offset-2 transition hover:text-gray-800 hover:decoration-gray-800"
-										>
-											Quên mật khẩu?
-										</a>
-									</div>
+										<p className="mt-5 text-xs leading-5 text-gray-500 sm:mt-6 sm:text-sm">
+											Với việc tạo tài khoản, bạn đồng ý với{' '}
+											<a href="#" className="underline decoration-gray-400 underline-offset-2 transition hover:text-gray-700 hover:decoration-gray-700">
+												Điều khoản dịch vụ
+											</a>{' '}
+											và xác nhận bạn đã đọc và đồng ý với{' '}
+											<a href="#" className="underline decoration-gray-400 underline-offset-2 transition hover:text-gray-700 hover:decoration-gray-700">
+												Chính sách bảo mật của tôi
+											</a>
+											.
+										</p>
+									</section>
 
-									<div className="flex justify-center pt-1 sm:pt-2">
+									<section className="md:pl-1">
+										<h2 className="mb-5 text-center text-xl font-semibold text-gray-800 sm:mb-6 sm:text-2xl">Đăng Nhập</h2>
+
+										<form className="space-y-4" onSubmit={onSubmitLogin}>
+											<div>
+												<label className="mb-2 block text-sm text-gray-500" htmlFor="login-email">
+													Email
+												</label>
+												<input
+													id="login-email"
+													name="email"
+													type="email"
+													className={inputClass}
+													value={loginForm.email}
+													onChange={onLoginInputChange}
+													placeholder="email@example.com"
+												/>
+											</div>
+
+											<div>
+												<div className="mb-2 flex items-center justify-between text-sm text-gray-500">
+													<label htmlFor="login-password">Mật Khẩu</label>
+													<button
+														type="button"
+														onClick={() => setShowLoginPassword((previous) => !previous)}
+														className="inline-flex items-center gap-1 rounded px-1 py-0.5 text-gray-500 transition hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
+													>
+														{showLoginPassword ? <EyeClosedIcon /> : <EyeOpenIcon />}
+														<span>{showLoginPassword ? 'Ẩn' : 'Hiện'}</span>
+													</button>
+												</div>
+												<input
+													id="login-password"
+													name="password"
+													type={showLoginPassword ? 'text' : 'password'}
+													className={inputClass}
+													value={loginForm.password}
+													onChange={onLoginInputChange}
+													placeholder="Tối thiểu 6 ký tự"
+												/>
+											</div>
+
+											<div className="text-right">
+												<a
+													href="#"
+													className="text-sm text-gray-600 underline decoration-gray-400 underline-offset-2 transition hover:text-gray-800 hover:decoration-gray-800"
+												>
+													Quên mật khẩu?
+												</a>
+											</div>
+
+											<div className="flex justify-center pt-1 sm:pt-2">
+												<button
+													type="submit"
+													disabled={!loginValid}
+													className={loginValid ? activeSubmitButtonClass : inactiveSubmitButtonClass}
+												>
+													Đăng Nhập
+												</button>
+											</div>
+										</form>
+									</section>
+								</div>
+							</div>
+
+							<div className="w-1/2">
+								<section className="h-full w-full rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50/80 via-white to-cyan-50/70 p-6 shadow-sm sm:p-8 md:p-9">
+									<div className="mb-6 flex items-center justify-between">
+										<h2 className="text-center text-2xl font-semibold text-gray-800 sm:text-3xl">Đăng Ký Bằng Email</h2>
 										<button
-											type="submit"
-											disabled={!loginValid}
-											className={loginValid ? activeSubmitButtonClass : inactiveSubmitButtonClass}
+											type="button"
+											onClick={() => setShowRegisterEmailForm(false)}
+											className="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-600 transition hover:border-blue-300 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
 										>
-											Đăng Nhập
+											Quay lại
 										</button>
 									</div>
-								</form>
-							</section>
+
+									<form onSubmit={onSubmitRegister} className="space-y-4">
+										<div>
+											<label className="mb-2 block text-sm font-medium text-gray-600" htmlFor="register-email">
+												Email
+											</label>
+											<input
+												id="register-email"
+												name="email"
+												type="email"
+												className={inputClass}
+												value={registerForm.email}
+												onChange={onRegisterInputChange}
+												placeholder="email@example.com"
+											/>
+										</div>
+
+										<div>
+											<div className="mb-2 flex items-center justify-between text-sm text-gray-600">
+												<label htmlFor="register-password">Mật khẩu</label>
+												<button
+													type="button"
+													onClick={() => setShowRegisterPassword((previous) => !previous)}
+													className="inline-flex items-center gap-1 rounded px-1 py-0.5 text-gray-500 transition hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
+												>
+													{showRegisterPassword ? <EyeClosedIcon /> : <EyeOpenIcon />}
+													<span>{showRegisterPassword ? 'Ẩn' : 'Hiện'}</span>
+												</button>
+											</div>
+											<input
+												id="register-password"
+												name="password"
+												type={showRegisterPassword ? 'text' : 'password'}
+												className={inputClass}
+												value={registerForm.password}
+												onChange={onRegisterInputChange}
+												placeholder="Tối thiểu 6 ký tự"
+											/>
+										</div>
+
+										<div>
+											<div className="mb-2 flex items-center justify-between text-sm text-gray-600">
+												<label htmlFor="register-repass">Nhập lại mật khẩu</label>
+												<button
+													type="button"
+													onClick={() => setShowRegisterRePassword((previous) => !previous)}
+													className="inline-flex items-center gap-1 rounded px-1 py-0.5 text-gray-500 transition hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
+												>
+													{showRegisterRePassword ? <EyeClosedIcon /> : <EyeOpenIcon />}
+													<span>{showRegisterRePassword ? 'Ẩn' : 'Hiện'}</span>
+												</button>
+											</div>
+											<input
+												id="register-repass"
+												name="repass"
+												type={showRegisterRePassword ? 'text' : 'password'}
+												className={inputClass}
+												value={registerForm.repass}
+												onChange={onRegisterInputChange}
+												placeholder="Nhập lại mật khẩu"
+											/>
+											{registerForm.repass && registerForm.password !== registerForm.repass ? (
+												<p className="mt-1 text-xs text-red-500">Mật khẩu nhập lại chưa khớp.</p>
+											) : null}
+										</div>
+
+										<button
+											type="submit"
+											disabled={!registerValid}
+											onClick={onSubmitRegister}
+											className={registerValid ? activeRegisterButtonClass : inactiveRegisterButtonClass}
+										>
+											Đăng ký
+										</button>
+									</form>
+								</section>
+							</div>
 						</div>
+					</div>
 				</div>
 
 				<footer className="rounded-b-2xl border-t border-gray-200 bg-gray-50 px-4 py-3 text-center text-[11px] text-gray-500 sm:rounded-b-3xl sm:px-6 sm:py-4 sm:text-xs">
