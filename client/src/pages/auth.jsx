@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 
 function EyeOpenIcon() {
 	return (
@@ -100,7 +101,7 @@ function AuthPage() {
 	const [loginForm, setLoginForm] = useState({ email: '', password: '' })
 	const [registerForm, setRegisterForm] = useState({ email: '', password: '', repass: '' })
 	const [isPageReady, setIsPageReady] = useState(false)
-
+	const navigate = useNavigate();
 	useEffect(() => {
 		const frame = requestAnimationFrame(() => {
 			setIsPageReady(true)
@@ -145,6 +146,7 @@ function AuthPage() {
 
 			if (response.ok) {
 				alert(data.message) 
+				navigate('/dashboard');
 			} else {
 				alert(data.message) 
 			}
@@ -171,6 +173,7 @@ function AuthPage() {
 
 			if (response.ok) {
 				alert(data.message) 
+				navigate('/auth');
 			} else {
 				alert(data.message) 
 			}
@@ -418,7 +421,6 @@ function AuthPage() {
 										<button
 											type="submit"
 											disabled={!registerValid}
-											onClick={onSubmitRegister}
 											className={registerValid ? activeRegisterButtonClass : inactiveRegisterButtonClass}
 										>
 											Đăng ký

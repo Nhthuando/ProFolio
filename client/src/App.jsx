@@ -1,7 +1,7 @@
 import AuthPage from './pages/auth'
-
+import LandingPage from './pages/landingpage'
 function App() {
-  return <AuthPage />
+  return <LandingPage />
 }
 
 export default App
