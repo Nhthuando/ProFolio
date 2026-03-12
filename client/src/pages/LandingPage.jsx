@@ -297,6 +297,7 @@ function FeaturesSection() {
         </div>
 
         <div className="grid gap-8 md:grid-cols-3">
+          {/* eslint-disable-next-line no-unused-vars */}
           {FEATURES.map(({ icon: Icon, title, desc, color, glow }, i) => (
             <div
               key={title}
@@ -545,6 +546,7 @@ function WhySection() {
 
           {/* Right: list */}
           <div className="space-y-8">
+            {/* eslint-disable-next-line no-unused-vars */}
             {STRENGTHS.map(({ icon: Icon, title, desc }, i) => (
               <div
                 key={title}
@@ -740,7 +742,7 @@ function Footer() {
                 { Icon: Facebook, name: 'facebook', href: '#' },
                 { Icon: Twitter, name: 'twitter', href: '#' },
                 { Icon: Instagram, name: 'instagram', href: '#' },
-              ].map(({ Icon, name, href }) => (
+              ].map(({ Icon, name, href }) => ( // eslint-disable-line no-unused-vars
                 <a
                   key={name}
                   href={href}
